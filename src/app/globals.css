@@ -1,26 +1,43 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Full dark theme — deep maroon-black canvas, warm off-white text. */
+  --background: #170a10;
+  --foreground: #f4ece7;
+
+  /* Temple brand accents — sampled directly from pixel colors on
+     vinaayagar.com (maroon, crimson CTA, gold highlight). */
+  --color-temple-surface: #241019;
+  --color-temple-maroon: #a11237;
+  --color-temple-maroon-dark: #700d27;
+  --color-temple-crimson: #e72557;
+  --color-temple-gold: #ffde5f;
+  --color-temple-gold-dark: #cc9a1a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-temple-surface: var(--color-temple-surface);
+  --color-temple-maroon: var(--color-temple-maroon);
+  --color-temple-maroon-dark: var(--color-temple-maroon-dark);
+  --color-temple-crimson: var(--color-temple-crimson);
+  --color-temple-gold: var(--color-temple-gold);
+  --color-temple-gold-dark: var(--color-temple-gold-dark);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+  <defs>
+    <linearGradient id="g11" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5C0A20"/>
+      <stop offset="100%" stop-color="#5C0A20"/>
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#g11)"/>
+  <circle cx="600" cy="504" r="84.00000000000001" fill="#FFDE5F" opacity="0.9"/>
+  <text x="50%" y="50%" text-anchor="middle" font-family="Georgia, serif" font-size="75" fill="#fbfaf8" opacity="0.95">Mahotsavam 2023</text>
+  <text x="50%" y="696" text-anchor="middle" font-family="Arial, sans-serif" font-size="35" fill="#FFDE5F" opacity="0.9">Photo 4</text>
+</svg>
