@@ -5,6 +5,13 @@ import PhotoGrid from "@/components/PhotoGrid";
 import { albums, getAlbum } from "@/lib/albums";
 import { getAlbumImages } from "@/lib/images";
 
+// Without this, the page would only ever reflect R2's contents as of the
+// last full deploy — new photos synced into an *existing* album's R2
+// folder wouldn't appear until something else triggered a rebuild. This
+// makes Vercel re-render the page in the background at most every 10
+// minutes, so newly-synced photos show up on their own between deploys.
+export const revalidate = 600;
+
 export function generateStaticParams() {
   return albums.map((album) => ({ slug: album.slug }));
 }
