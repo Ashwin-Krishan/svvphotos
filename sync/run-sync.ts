@@ -20,6 +20,24 @@ async function main() {
     `Found ${files.length} photo(s) across ${topLevelFolderNames.length} top-level folder(s): ${topLevelFolderNames.join(", ")}`
   );
 
+  // Safety guard: a full-mirror sync trusts this listing enough to delete
+  // anything it doesn't see. An empty result is far more likely to mean
+  // "folder not shared with the service account" / "wrong folder ID" /
+  // "transient API hiccup" than "the priest deleted every album" — so
+  // treat it as a suspected misconfiguration and skip the destructive
+  // (removal) half of the reconciliation entirely rather than wiping out
+  // every existing photo and album.
+  if (topLevelFolderNames.length === 0) {
+    console.warn(
+      "⚠ Found 0 top-level folders in the Drive inbox. This almost always means the " +
+        "inbox folder isn't shared with the service account yet, GOOGLE_DRIVE_ROOT_FOLDER_ID " +
+        "is wrong, or the inbox is genuinely empty. Skipping album/photo removal this run " +
+        "to avoid wiping the site — investigate before the next scheduled run."
+    );
+    console.log("Done: nothing to sync.");
+    return;
+  }
+
   const manifest = await loadManifest();
   const stats: SyncStats = { added: [], removed: [], errors: [] };
 
