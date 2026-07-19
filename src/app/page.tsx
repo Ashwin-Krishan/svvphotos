@@ -1,22 +1,21 @@
 import Link from "next/link";
 import { albums } from "@/lib/albums";
-import { getHeroPhotos, getAlbumCoverPhoto } from "@/lib/heroPhotos";
-import PhotoBackdrop from "@/components/PhotoBackdrop";
+import { getAlbumCoverPhoto } from "@/lib/heroPhotos";
+import VideoBackdrop from "@/components/VideoBackdrop";
 import Marquee from "@/components/Marquee";
 import Reveal from "@/components/Reveal";
 import AlbumCard from "@/components/AlbumCard";
 import HeroText from "@/components/HeroText";
 
+const HERO_YOUTUBE_ID = "OsOttEAq7Qo";
+
 export default async function HomePage() {
-  const [heroPhotos, covers] = await Promise.all([
-    getHeroPhotos(6),
-    Promise.all(albums.map((a) => getAlbumCoverPhoto(a.slug))),
-  ]);
+  const covers = await Promise.all(albums.map((a) => getAlbumCoverPhoto(a.slug)));
 
   return (
     <div>
       <section className="relative flex min-h-[85vh] items-center overflow-hidden px-4 text-center sm:px-6">
-        <PhotoBackdrop photos={heroPhotos} />
+        <VideoBackdrop youtubeId={HERO_YOUTUBE_ID} />
         <HeroText firstAlbumSlug={albums[0].slug} />
       </section>
 

@@ -39,15 +39,7 @@ export default function HeroText({ firstAlbumSlug }: { firstAlbumSlug: string })
         <span className="italic text-shine">beautifully</span> kept.
       </motion.h1>
 
-      <motion.p
-        variants={item}
-        className="mx-auto mt-6 max-w-xl text-base text-foreground/70 sm:text-lg"
-      >
-        Mahotsavam, Navarathiri, Sivarathiri, Thiruvempavai — and every
-        celebration since, captured and preserved here.
-      </motion.p>
-
-      <motion.div variants={item} className="mt-9">
+      <motion.div variants={item} className="mt-10">
         <Link
           href={`/photos/${firstAlbumSlug}`}
           className="inline-block rounded-full bg-temple-crimson px-7 py-3.5 font-medium text-white transition-transform hover:scale-105 hover:bg-temple-crimson/90"
