@@ -1,22 +1,44 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 
 export default function Header() {
   const pathname = usePathname();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 16);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const navLinkClass = (active: boolean) =>
     [
-      "rounded-full px-3 py-2 transition-colors",
+      "relative rounded-full px-3 py-2 transition-colors",
       active
         ? "text-temple-gold"
         : "text-foreground/80 hover:bg-white/5 hover:text-foreground",
     ].join(" ");
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-temple-surface">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+    <motion.header
+      initial={{ y: -24, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      className="sticky top-0 z-40"
+    >
+      <div
+        className={[
+          "mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 transition-colors duration-300 sm:px-6",
+          scrolled
+            ? "border-b border-white/10 bg-temple-surface/80 backdrop-blur-md"
+            : "border-b border-transparent bg-transparent",
+        ].join(" ")}
+      >
         <Link href="/" className="flex items-center gap-3">
           <span
             aria-hidden
@@ -48,12 +70,12 @@ export default function Header() {
             href="https://www.vinaayagar.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-full bg-temple-crimson px-3 py-2 text-white transition-colors hover:bg-temple-crimson/85"
+            className="rounded-full bg-temple-crimson px-3 py-2 text-white transition-transform hover:scale-[1.04] hover:bg-temple-crimson/90"
           >
             Main Site ↗
           </a>
         </nav>
       </div>
-    </header>
+    </motion.header>
   );
 }

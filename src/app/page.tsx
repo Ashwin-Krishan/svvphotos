@@ -1,68 +1,61 @@
 import Link from "next/link";
 import { albums } from "@/lib/albums";
+import { getHeroPhotos, getAlbumCoverPhoto } from "@/lib/heroPhotos";
+import PhotoBackdrop from "@/components/PhotoBackdrop";
+import Marquee from "@/components/Marquee";
+import Reveal from "@/components/Reveal";
+import AlbumCard from "@/components/AlbumCard";
+import HeroText from "@/components/HeroText";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [heroPhotos, covers] = await Promise.all([
+    getHeroPhotos(6),
+    Promise.all(albums.map((a) => getAlbumCoverPhoto(a.slug))),
+  ]);
+
   return (
     <div>
-      <section className="border-b border-white/10 px-4 py-16 text-center sm:px-6 sm:py-20">
-        <p className="font-display text-sm uppercase tracking-[0.3em] text-temple-gold">
-          Sri Varasiththi Vinaayagar Hindu Temple
-        </p>
-        <h1 className="mx-auto mt-4 max-w-2xl font-display text-3xl font-semibold sm:text-5xl">
-          Photo Gallery
-        </h1>
-        <div className="mx-auto mt-5 h-px w-16 bg-temple-gold/40" />
-        <p className="mx-auto mt-5 max-w-xl text-foreground/70">
-          Moments from our festivals and celebrations — Mahotsavam,
-          Navarathiri, Sivarathiri, Thiruvempavai, and more.
-        </p>
-        <Link
-          href={`/photos/${albums[0].slug}`}
-          className="mt-8 inline-block rounded-full bg-temple-crimson px-6 py-3 font-medium text-white transition-colors hover:bg-temple-crimson/85"
-        >
-          Browse Photos
-        </Link>
+      <section className="relative flex min-h-[85vh] items-center overflow-hidden px-4 text-center sm:px-6">
+        <PhotoBackdrop photos={heroPhotos} />
+        <HeroText firstAlbumSlug={albums[0].slug} />
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-        <h2 className="font-display text-2xl font-semibold text-temple-gold">
-          Albums
-        </h2>
+      <Marquee items={albums.map((a) => a.title)} />
 
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {albums.map((album) => (
-            <Link
-              key={album.slug}
-              href={`/photos/${album.slug}`}
-              className="group rounded-xl border border-white/10 bg-temple-surface p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-temple-gold/30 hover:shadow-lg hover:shadow-black/30"
-            >
-              <div className="flex items-center justify-between">
-                <span className="rounded-full bg-temple-maroon/25 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-temple-gold">
-                  {album.event}
-                </span>
-                {album.year != null && (
-                  <span className="font-display text-xl font-semibold text-temple-gold-dark">
-                    {album.year}
-                  </span>
-                )}
-              </div>
-              <h3 className="mt-3 font-display text-lg font-semibold">
-                {album.title}
-              </h3>
-              {album.description && (
-                <p className="mt-1 text-sm text-foreground/60">
-                  {album.description}
-                </p>
-              )}
-              <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-temple-crimson">
-                View album
-                <span className="transition-transform group-hover:translate-x-0.5">
-                  →
-                </span>
-              </span>
-            </Link>
+      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+        <Reveal>
+          <p className="font-display text-sm uppercase tracking-[0.3em] text-temple-gold">
+            Browse
+          </p>
+          <h2 className="mt-2 font-display text-3xl font-semibold sm:text-4xl">
+            Every <span className="italic text-shine">celebration,</span>{" "}
+            preserved.
+          </h2>
+        </Reveal>
+
+        <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {albums.map((album, i) => (
+            <Reveal key={album.slug} delay={i * 0.06}>
+              <AlbumCard album={album} cover={covers[i]} />
+            </Reveal>
           ))}
         </div>
+      </section>
+
+      <section className="border-t border-white/10 px-4 py-16 text-center sm:px-6">
+        <Reveal>
+          <p className="mx-auto max-w-xl font-display text-2xl italic text-foreground/80">
+            For services, hours, and donations —
+          </p>
+          <Link
+            href="https://www.vinaayagar.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6 inline-block rounded-full border border-temple-gold/40 px-6 py-3 font-medium text-temple-gold transition-colors hover:bg-temple-gold/10"
+          >
+            Visit the Main Temple Site ↗
+          </Link>
+        </Reveal>
       </section>
     </div>
   );

@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import type { Metadata } from "next";
 import AlbumTabs from "@/components/AlbumTabs";
 import PhotoGrid from "@/components/PhotoGrid";
+import Reveal from "@/components/Reveal";
 import { albums, getAlbum } from "@/lib/albums";
 import { getAlbumImages } from "@/lib/images";
 
@@ -40,24 +42,43 @@ export default async function AlbumPage({
   if (!album) notFound();
 
   const photos = await getAlbumImages(slug);
+  const cover = photos[0];
 
   return (
     <div>
-      <AlbumTabs activeSlug={slug} />
+      <section className="relative flex h-[46vh] min-h-[320px] items-end overflow-hidden">
+        {cover ? (
+          <Image
+            src={cover.src}
+            alt=""
+            fill
+            sizes="100vw"
+            priority
+            className="object-cover"
+            unoptimized
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-temple-maroon to-temple-maroon-dark" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-black/20" />
+        <div className="kolam-grid absolute inset-0 opacity-30" />
 
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <div className="mb-6">
-          <span className="rounded-full bg-temple-maroon/25 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-temple-gold">
+        <Reveal className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-8 sm:px-6">
+          <span className="rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-temple-gold backdrop-blur-sm">
             {album.event}
           </span>
-          <h1 className="mt-2 font-display text-2xl font-semibold sm:text-3xl">
+          <h1 className="mt-3 font-display text-3xl font-semibold text-white sm:text-5xl">
             {album.title}
           </h1>
           {album.description && (
-            <p className="mt-1 text-foreground/60">{album.description}</p>
+            <p className="mt-2 max-w-xl text-foreground/70">{album.description}</p>
           )}
-        </div>
+        </Reveal>
+      </section>
 
+      <AlbumTabs activeSlug={slug} />
+
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         <PhotoGrid photos={photos} />
       </div>
     </div>

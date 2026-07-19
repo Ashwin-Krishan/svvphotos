@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
+import { AnimatePresence, motion } from "framer-motion";
 import type { GalleryImage } from "@/lib/images";
 
 export default function PhotoGrid({ photos }: { photos: GalleryImage[] }) {
@@ -60,16 +61,18 @@ export default function PhotoGrid({ photos }: { photos: GalleryImage[] }) {
         ))}
       </div>
 
-      {openIndex !== null && (
-        <Lightbox
-          photo={photos[openIndex]}
-          onClose={close}
-          onPrev={showPrev}
-          onNext={showNext}
-          index={openIndex}
-          total={photos.length}
-        />
-      )}
+      <AnimatePresence>
+        {openIndex !== null && (
+          <Lightbox
+            photo={photos[openIndex]}
+            onClose={close}
+            onPrev={showPrev}
+            onNext={showNext}
+            index={openIndex}
+            total={photos.length}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 }
@@ -90,7 +93,11 @@ function Lightbox({
   total: number;
 }) {
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
       role="dialog"
       aria-modal="true"
@@ -117,7 +124,11 @@ function Lightbox({
         <ChevronIcon direction="left" />
       </button>
 
-      <div
+      <motion.div
+        key={photo.id}
+        initial={{ opacity: 0, scale: 0.97 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
         className="relative flex max-h-[85vh] max-w-4xl items-center justify-center"
         onClick={(e) => e.stopPropagation()}
       >
@@ -131,7 +142,7 @@ function Lightbox({
           unoptimized
           priority
         />
-      </div>
+      </motion.div>
 
       <button
         type="button"
@@ -148,7 +159,7 @@ function Lightbox({
       <p className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/40 px-3 py-1 text-xs text-white">
         {index + 1} / {total}
       </p>
-    </div>
+    </motion.div>
   );
 }
 
