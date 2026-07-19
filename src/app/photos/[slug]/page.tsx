@@ -46,7 +46,9 @@ export default async function AlbumPage({
           <h1 className="mt-2 font-display text-2xl font-semibold sm:text-3xl">
             {album.title}
           </h1>
-          <p className="mt-1 text-foreground/60">{album.description}</p>
+          {album.description && (
+            <p className="mt-1 text-foreground/60">{album.description}</p>
+          )}
         </div>
 
         <PhotoGrid photos={photos} />

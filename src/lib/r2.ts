@@ -12,7 +12,12 @@
 //
 // Until then, this module is inert: isR2Configured() returns false and
 // nothing here is called.
-import { S3Client, ListObjectsV2Command } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  ListObjectsV2Command,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
 
 export function isR2Configured(): boolean {
   return Boolean(
@@ -67,6 +72,31 @@ export async function listAlbumObjectKeys(prefix: string): Promise<string[]> {
   } while (continuationToken);
 
   return keys;
+}
+
+/** Uploads a compressed image to R2 under the given key (used by the sync pipeline). */
+export async function putObject(
+  key: string,
+  body: Buffer,
+  contentType = "image/jpeg"
+): Promise<void> {
+  const s3 = getR2Client();
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: process.env.R2_BUCKET!,
+      Key: key,
+      Body: body,
+      ContentType: contentType,
+    })
+  );
+}
+
+/** Deletes an object from R2 (used by the sync pipeline's full-mirror delete step). */
+export async function deleteObject(key: string): Promise<void> {
+  const s3 = getR2Client();
+  await s3.send(
+    new DeleteObjectCommand({ Bucket: process.env.R2_BUCKET!, Key: key })
+  );
 }
 
 /** Public URL for an object key, via the bucket's public dev URL or custom domain. */

@@ -37,6 +37,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# sync pipeline — local-destination output (pre-Phase-2 R2 stand-in)
+/sync/local-output
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

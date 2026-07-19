@@ -40,16 +40,20 @@ export default function HomePage() {
                 <span className="rounded-full bg-temple-maroon/25 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-temple-gold">
                   {album.event}
                 </span>
-                <span className="font-display text-xl font-semibold text-temple-gold-dark">
-                  {album.year}
-                </span>
+                {album.year != null && (
+                  <span className="font-display text-xl font-semibold text-temple-gold-dark">
+                    {album.year}
+                  </span>
+                )}
               </div>
               <h3 className="mt-3 font-display text-lg font-semibold">
                 {album.title}
               </h3>
-              <p className="mt-1 text-sm text-foreground/60">
-                {album.description}
-              </p>
+              {album.description && (
+                <p className="mt-1 text-sm text-foreground/60">
+                  {album.description}
+                </p>
+              )}
               <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-temple-crimson">
                 View album
                 <span className="transition-transform group-hover:translate-x-0.5">
