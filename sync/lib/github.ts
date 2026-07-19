@@ -79,7 +79,23 @@ export async function getFile(
     throw new Error(`Failed reading ${filePath}@${branch}: ${res.status} ${await res.text()}`);
   }
   const json = await res.json();
-  return { content: Buffer.from(json.content, "base64").toString("utf-8"), sha: json.sha };
+
+  // The Contents API only inlines base64 content for files up to 1MB —
+  // above that it returns `content` as an empty string (not omitted, not
+  // a different status code — just silently empty). manifest.json
+  // crosses that threshold once a few thousand photos are synced, so
+  // fall back to the Git Blobs API (good up to 100MB) whenever the
+  // reported size doesn't match what an empty string would decode to.
+  if (json.content) {
+    return { content: Buffer.from(json.content, "base64").toString("utf-8"), sha: json.sha };
+  }
+
+  const blob = await ghFetch(`/git/blobs/${json.sha}`);
+  if (!blob.ok) {
+    throw new Error(`Failed reading blob for ${filePath}@${branch}: ${blob.status} ${await blob.text()}`);
+  }
+  const blobJson = await blob.json();
+  return { content: Buffer.from(blobJson.content, "base64").toString("utf-8"), sha: json.sha };
 }
 
 /** Writes (creates or updates) a file on a branch via a single commit. */
