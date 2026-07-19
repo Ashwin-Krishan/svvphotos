@@ -22,6 +22,15 @@ export type ManifestSource = "drive" | "local";
 
 export type ManifestEntry = {
   source: ManifestSource;
+  /**
+   * Where this file actually landed: "r2" if it was really uploaded via
+   * the S3-compatible client, "local" if R2 wasn't configured yet and it
+   * only went to ./sync/local-output. Lets processNewFiles tell "already
+   * synced for real" apart from "was only ever a local-mode placeholder"
+   * — without this, flipping R2 on for the first time would leave every
+   * already-manifested file permanently skipped, never actually uploaded.
+   */
+  destination: "r2" | "local";
   /** Folder path segments + filename, human-readable, for debugging/logging. */
   relPath: string;
   r2Key: string;

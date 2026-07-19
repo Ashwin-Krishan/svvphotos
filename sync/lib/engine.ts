@@ -1,5 +1,6 @@
 import { compressToJpeg } from "./compress";
 import { uploadToDestination, deleteFromDestination } from "./destination";
+import { isR2Configured } from "../../src/lib/r2";
 import { buildR2Key } from "./slug";
 import type { Manifest, ManifestSource, SourceFile } from "./types";
 
@@ -20,8 +21,16 @@ export async function processNewFiles(
   source: ManifestSource,
   stats: SyncStats
 ): Promise<void> {
+  const currentDestination = isR2Configured() ? "r2" : "local";
+
   for (const file of files) {
-    if (manifest.entries[file.sourceId]) continue;
+    const existing = manifest.entries[file.sourceId];
+    // Only skip if it was already synced to the destination we're
+    // *currently* using. A file recorded under "local" (because R2 wasn't
+    // configured yet at the time) still needs a real upload once R2 goes
+    // live — otherwise turning on R2 for the first time would silently
+    // skip every already-manifested file forever.
+    if (existing && existing.destination === currentDestination) continue;
 
     const relPath = [...file.pathSegments, file.name].join("/");
 
@@ -41,6 +50,7 @@ export async function processNewFiles(
 
       manifest.entries[file.sourceId] = {
         source,
+        destination: currentDestination,
         relPath,
         r2Key,
         size: compressed.length,
