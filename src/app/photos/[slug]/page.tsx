@@ -3,9 +3,11 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import AlbumTabs from "@/components/AlbumTabs";
 import PhotoGrid from "@/components/PhotoGrid";
+import SubalbumBrowser from "@/components/SubalbumBrowser";
 import Reveal from "@/components/Reveal";
 import { albums, getAlbum } from "@/lib/albums";
 import { getAlbumImages } from "@/lib/images";
+import { getAlbumContents } from "@/lib/subalbums";
 
 // Without this, the page would only ever reflect R2's contents as of the
 // last full deploy — new photos synced into an *existing* album's R2
@@ -41,8 +43,12 @@ export default async function AlbumPage({
   const album = getAlbum(slug);
   if (!album) notFound();
 
-  const photos = await getAlbumImages(slug);
+  const [photos, contents] = await Promise.all([
+    getAlbumImages(slug),
+    getAlbumContents(slug),
+  ]);
   const cover = photos[0];
+  const hasSubalbums = contents.subalbums.length > 0;
 
   return (
     <div>
@@ -79,7 +85,11 @@ export default async function AlbumPage({
       <AlbumTabs activeSlug={slug} />
 
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <PhotoGrid photos={photos} />
+        {hasSubalbums ? (
+          <SubalbumBrowser contents={contents} />
+        ) : (
+          <PhotoGrid photos={photos} />
+        )}
       </div>
     </div>
   );
