@@ -1,9 +1,14 @@
-// Minimal GitHub REST API client for the two small JSON files this pipeline
-// owns (manifest.json on the sync-state branch, albums.generated.json on
-// main). Deliberately API-based rather than local `git checkout`/`commit` —
-// this way the pipeline never touches whatever branch is currently checked
-// out in the working tree it's run from (important for the local on-demand
-// path, which may be run while other work is in progress).
+// Minimal GitHub REST API client used by albumsRegistry.ts to read/write
+// src/data/albums.generated.json on main (intentionally — a new album
+// should trigger a Vercel rebuild). Deliberately API-based rather than
+// local `git checkout`/`commit` — this way the pipeline never touches
+// whatever branch is currently checked out in the working tree it's run
+// from (important for the local on-demand path, which may be run while
+// other work is in progress).
+//
+// The manifest used to live here too (on a dedicated sync-state branch),
+// but that hit GitHub's ~100MB Git Blobs API ceiling as it grew — see
+// sync/lib/manifest.ts, which now stores it in R2 instead.
 import { execSync } from "node:child_process";
 
 function repoInfo(): { owner: string; repo: string } {

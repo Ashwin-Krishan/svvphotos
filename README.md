@@ -57,7 +57,7 @@ sync/
     sources/localSource.ts     Recursively walks a local folder (same shape as Drive)
     compress.ts                 sharp: resize to <=2400px longest edge, JPEG q82
     destination.ts               uploadToDestination() / deleteFromDestination() — swappable, see below
-    manifest.ts                  Tracks synced files on the sync-state branch
+    manifest.ts                  Tracks synced files as a JSON object in R2
     albumsRegistry.ts            Auto-registers new albums into albums.generated.json
     engine.ts                    Shared new/removed reconciliation logic
     github.ts                    Minimal GitHub API client used by manifest.ts/albumsRegistry.ts
@@ -112,14 +112,19 @@ Full design notes live in
   compress → upload → manifest-update logic, so there's exactly one
   implementation of that behavior.
 - **Nested folders** (e.g. `Festival 2026/Day 2`) mirror into a matching
-  nested R2 path. The current site only has flat, single-level album
-  pages, so nested-folder photos merge into their parent album's photo
-  grid today rather than getting their own "Day 2" tab — nothing is
-  lost, sub-album browsing UI is a separate future addition if wanted.
+  nested R2 path, and the album page ([src/lib/subalbums.ts](src/lib/subalbums.ts),
+  [src/components/SubalbumBrowser.tsx](src/components/SubalbumBrowser.tsx))
+  groups them into clickable day tabs automatically — folder = album,
+  subfolder = sub-album, natural-sorted (Day 2 before Day 10).
 - **State**: the manifest (which Drive/local files have already been
-  synced, and where) lives as `manifest.json` on a dedicated
-  **`sync-state`** branch — deliberately *not* `main`, so a routine sync
-  run never triggers a Vercel redeploy. `src/data/albums.generated.json`
+  synced, and where) lives as a single JSON object at `_sync/manifest.json`
+  in the R2 bucket itself — not a git-tracked file. It used to live on a
+  dedicated `sync-state` GitHub branch, but that hit a real ceiling:
+  GitHub's Git Blobs API tops out around 100MB per file, and this
+  manifest only grows (one entry per photo ever synced). R2 has no such
+  limit at any scale this pipeline will realistically reach. Storing it
+  outside `main` was never about the ceiling, though — it's so a routine
+  sync run never triggers a Vercel redeploy. `src/data/albums.generated.json`
   *is* on `main`, since a brand-new album should trigger a rebuild so its
   page actually exists.
 

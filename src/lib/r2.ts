@@ -17,7 +17,10 @@ import {
   ListObjectsV2Command,
   PutObjectCommand,
   DeleteObjectCommand,
+  GetObjectCommand,
+  NoSuchKey,
 } from "@aws-sdk/client-s3";
+import type { Readable } from "node:stream";
 
 export function isR2Configured(): boolean {
   return Boolean(
@@ -89,6 +92,24 @@ export async function putObject(
       ContentType: contentType,
     })
   );
+}
+
+/** Reads an object back from R2. Returns null if it doesn't exist. */
+export async function getObject(key: string): Promise<Buffer | null> {
+  const s3 = getR2Client();
+  try {
+    const res = await s3.send(
+      new GetObjectCommand({ Bucket: process.env.R2_BUCKET!, Key: key })
+    );
+    const chunks: Buffer[] = [];
+    for await (const chunk of res.Body as Readable) {
+      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+    }
+    return Buffer.concat(chunks);
+  } catch (err) {
+    if (err instanceof NoSuchKey) return null;
+    throw err;
+  }
 }
 
 /** Deletes an object from R2 (used by the sync pipeline's full-mirror delete step). */
