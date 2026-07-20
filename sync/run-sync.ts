@@ -7,6 +7,8 @@ import { walkDriveFolder } from "./lib/sources/driveSource";
 import { loadManifest, saveManifest } from "./lib/manifest";
 import { reconcileAlbums } from "./lib/albumsRegistry";
 import { processNewFiles, processRemovals, summarize, type SyncStats } from "./lib/engine";
+import { notifySite } from "./lib/revalidate";
+import { slugifySegment } from "./lib/slug";
 
 async function main() {
   const rootFolderId = process.env.GOOGLE_DRIVE_ROOT_FOLDER_ID;
@@ -57,6 +59,11 @@ async function main() {
       `Albums updated — added: [${addedAlbums.join(", ")}], removed: [${removedAlbums.join(", ")}]`
     );
   }
+
+  // Always notify for every current album, not just the ones with
+  // changes this run — cheap, and removes any chance of a page staying
+  // stale because of an edge case in what "changed" means.
+  await notifySite(topLevelFolderNames.map(slugifySegment));
 
   console.log(`Done: ${summarize(stats)}`);
   if (stats.errors.length) {

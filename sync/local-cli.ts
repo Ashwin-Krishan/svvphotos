@@ -15,6 +15,8 @@ import { walkLocalFolder } from "./lib/sources/localSource";
 import { loadManifest, saveManifest } from "./lib/manifest";
 import { reconcileAlbums } from "./lib/albumsRegistry";
 import { processNewFiles, summarize, type SyncStats } from "./lib/engine";
+import { notifySite } from "./lib/revalidate";
+import { slugifySegment } from "./lib/slug";
 
 async function main() {
   const [folderArg, albumNameArg] = process.argv.slice(2);
@@ -41,6 +43,8 @@ async function main() {
   // sync's job, since only that job ever sees the entire inbox at once).
   const { changed, added } = await reconcileAlbums(topLevelFolderNames, { full: false });
   if (changed) console.log(`New album registered: ${added.join(", ")}`);
+
+  await notifySite(topLevelFolderNames.map(slugifySegment));
 
   console.log(`Done: ${summarize(stats)}`);
   if (stats.errors.length) {

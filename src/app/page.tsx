@@ -9,6 +9,12 @@ import HeroText from "@/components/HeroText";
 
 const HERO_YOUTUBE_ID = "OsOttEAq7Qo";
 
+// Without this, the home page's album cover photos would only ever
+// reflect R2's contents as of the last full deploy — the same class of
+// staleness bug as the album pages (src/app/photos/[slug]/page.tsx) had
+// before revalidate was added there.
+export const revalidate = 600;
+
 export default async function HomePage() {
   const covers = await Promise.all(albums.map((a) => getAlbumCoverPhoto(a.slug)));
 

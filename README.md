@@ -127,6 +127,18 @@ Full design notes live in
   sync run never triggers a Vercel redeploy. `src/data/albums.generated.json`
   *is* on `main`, since a brand-new album should trigger a rebuild so its
   page actually exists.
+- **Freshness**: album/home pages use ISR (`revalidate = 600`), which is
+  a safety net, not the primary mechanism — ISR only regenerates a page
+  on the *next visit* after its window elapses, so a low-traffic page
+  could sit stale indefinitely between visits. Every sync run also calls
+  [sync/lib/revalidate.ts](sync/lib/revalidate.ts), which hits the
+  deployed site's `/api/revalidate` route
+  ([src/app/api/revalidate/route.ts](src/app/api/revalidate/route.ts))
+  to force an immediate refresh of every current album + the home page.
+  Needs `PUBLIC_SITE_URL` + `REVALIDATE_SECRET` set identically in three
+  places (local `.env`, GitHub Actions secrets, Vercel env vars) — if
+  either is missing the pipeline just logs a note and falls back to
+  ISR's 10-minute window instead of failing the run.
 
 ### One-time setup
 
@@ -199,36 +211,37 @@ real R2 data (leave it absent to keep using placeholders).
 
 ## Deployment
 
-Standard Git → Vercel flow:
+Standard Git → Vercel flow — **the Vercel project is connected to this
+GitHub repo's `main` branch and auto-deploys on every push.** That's the
+only deploy path that should ever be used:
 
-1. Push this repo to GitHub.
-2. Import it into Vercel (Next.js is auto-detected).
-3. Add the `R2_*` environment variables in the Vercel project settings
-   once Phase 2 is live (see below).
-4. **Custom subdomain**: after the first deploy, add a project domain in
-   Vercel for `photos.vinaayagar.com` — Vercel will give you the exact
-   CNAME/A record to add in DNS. This repo doesn't need any code changes
-   for that step.
+1. `git push` to `main` → Vercel picks it up and deploys automatically
+   within seconds. This is reliable and always reflects the true repo
+   state — verified repeatedly.
+2. **Don't run `vercel deploy --prod` (or any CLI deploy) unless you've
+   just run `git fetch origin main && git status` and confirmed your
+   local checkout has zero divergence from `origin/main`.** A CLI deploy
+   uploads whatever's in your local working directory, not what's on
+   GitHub — and the sync pipeline commits directly to `main` via the
+   GitHub API (album auto-registration), completely bypassing any local
+   git checkout. A stale local branch + a CLI deploy will silently
+   *regress* the live site to older data with no error or warning. This
+   happened once already (see git history around the "Festival 2026"
+   album going temporarily missing) — always prefer `git push` and let
+   Vercel's own Git integration handle it.
+3. Environment variables (`R2_*`, `PUBLIC_SITE_URL`, `REVALIDATE_SECRET`)
+   live in the Vercel project's own settings — see "Photo sync pipeline"
+   above for what each one is for. They're separate from GitHub Actions
+   secrets; both need to be set independently since they're different
+   environments (learned this the hard way — R2 secrets existed in
+   GitHub Actions for a while before anyone realized Vercel needed its
+   own copy too).
+4. **Custom subdomain**: already configured — `photos.vinaayagar.com` is
+   aliased to this Vercel project.
 
-## Phase 2 — pending Cloudflare R2 sign-off
+## Cost/abuse protection — not yet started
 
-Cloudflare R2 is not set up yet (pending internal approval). Nothing in
-this repo depends on it existing — the site runs fully on placeholders,
-and the sync pipeline runs fully in local-output mode, until then. Once
-approved:
-
-- [ ] **(a) Create the R2 bucket** — see the TODO comments at the top of
-      [src/lib/r2.ts](src/lib/r2.ts) for the exact steps (create bucket,
-      create scoped API token, enable public access/custom domain, fill
-      in `.env.local` and the GitHub Actions secrets).
-- [x] **(b) Build the Google Drive → R2 sync** — done, see "Photo sync
-      pipeline" above. `uploadToDestination()` /
-      `deleteFromDestination()` in [sync/lib/destination.ts](sync/lib/destination.ts)
-      are the only two functions that need real R2 to do something —
-      they already do, automatically, once the env vars above are set.
-- [ ] **(c) Add the custom subdomain in Vercel** once deployed — see
-      "Deployment" above.
-- [ ] **(d) Cloudflare edge caching + rate limiting** in front of the
-      R2-backed image routes (cache-everything rule + one rate-limiting
-      rule) — cost/abuse protection, needs Cloudflare so it's phase 2 too.
-      Not yet started.
+- [ ] Cloudflare edge caching + rate limiting in front of the R2-backed
+      image routes (cache-everything rule + one rate-limiting rule) —
+      repeated requests for the same photo should hit Cloudflare's cache,
+      not count as a fresh R2 read each time.
