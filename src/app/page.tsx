@@ -7,7 +7,9 @@ import Reveal from "@/components/Reveal";
 import AlbumCard from "@/components/AlbumCard";
 import HeroText from "@/components/HeroText";
 
-const HERO_YOUTUBE_ID = "OsOttEAq7Qo";
+// Site asset (not a synced event photo), uploaded once directly to R2 —
+// see the "Hero video" note in README.md for how to replace it.
+const HERO_VIDEO_URL = `${process.env.R2_PUBLIC_BASE_URL}/_site-assets/hero-video.mp4`;
 
 // Without this, the home page's album cover photos would only ever
 // reflect R2's contents as of the last full deploy — the same class of
@@ -21,7 +23,7 @@ export default async function HomePage() {
   return (
     <div>
       <section className="relative flex min-h-[85vh] items-center overflow-hidden px-4 text-center sm:px-6">
-        <VideoBackdrop youtubeId={HERO_YOUTUBE_ID} />
+        <VideoBackdrop src={HERO_VIDEO_URL} />
         <HeroText firstAlbumSlug={albums[0].slug} />
       </section>
 

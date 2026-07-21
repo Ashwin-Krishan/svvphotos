@@ -199,6 +199,31 @@ folder to verify a run worked. The moment `R2_*` secrets/env vars are
 set, both entry points start actually uploading/deleting in R2, with
 zero code changes.
 
+## Hero video
+
+The home page's background video ([src/components/VideoBackdrop.tsx](src/components/VideoBackdrop.tsx))
+is a single site asset stored at `_site-assets/hero-video.mp4` in the R2
+bucket — not part of the photo sync pipeline (it's not a Drive-synced
+event photo, just a one-off upload). To replace it:
+
+1. Compress the source video for web background use — it doesn't need
+   to be pristine since it always sits behind a dark gradient + text.
+   What worked well for a 4K/60fps/1GB source, via ffmpeg:
+   ```bash
+   ffmpeg -i input.mov \
+     -vf "scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080" \
+     -r 30 -c:v libx264 -preset slow -crf 24 -an -movflags +faststart \
+     hero-video.mp4
+   ```
+   (`-an` strips audio entirely — the video autoplays muted regardless,
+   per browser policy, so there's no reason to ship an audio track.)
+   That took a 1.02GB source down to ~19.5MB.
+2. Upload it to R2 at the same key (`_site-assets/hero-video.mp4`) via
+   `putObject()` from [src/lib/r2.ts](src/lib/r2.ts) — see git history
+   for a one-off upload script example.
+3. Nothing else needs to change — the home page already points at that
+   fixed key via `R2_PUBLIC_BASE_URL`.
+
 ## Local development
 
 ```bash
