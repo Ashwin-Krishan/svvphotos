@@ -33,7 +33,7 @@ async function main() {
   console.log(`Found ${files.length} photo(s).`);
 
   const manifest = await loadManifest();
-  const stats: SyncStats = { added: [], removed: [], errors: [] };
+  const stats: SyncStats = { added: [], moved: [], removed: [], errors: [] };
 
   await processNewFiles(files, manifest, "local", stats);
   await saveManifest(manifest, summarize(stats));

@@ -18,6 +18,7 @@ import {
   PutObjectCommand,
   DeleteObjectCommand,
   GetObjectCommand,
+  CopyObjectCommand,
   NoSuchKey,
 } from "@aws-sdk/client-s3";
 import type { Readable } from "node:stream";
@@ -117,6 +118,26 @@ export async function deleteObject(key: string): Promise<void> {
   const s3 = getR2Client();
   await s3.send(
     new DeleteObjectCommand({ Bucket: process.env.R2_BUCKET!, Key: key })
+  );
+}
+
+/**
+ * Server-side copy within the bucket — used when a Drive file gets
+ * moved to a different folder. Its Drive file ID stays the same across
+ * a move, so it's already in the manifest and would otherwise be
+ * silently skipped as "already synced" while sitting at its stale old
+ * key. Copying key-to-key inside R2 is far cheaper than re-downloading
+ * from Drive and re-compressing a file that hasn't actually changed.
+ */
+export async function copyObject(fromKey: string, toKey: string): Promise<void> {
+  const s3 = getR2Client();
+  const bucket = process.env.R2_BUCKET!;
+  await s3.send(
+    new CopyObjectCommand({
+      Bucket: bucket,
+      CopySource: `${bucket}/${encodeURIComponent(fromKey)}`,
+      Key: toKey,
+    })
   );
 }
 

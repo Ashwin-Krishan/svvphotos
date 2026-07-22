@@ -41,7 +41,7 @@ async function main() {
   }
 
   const manifest = await loadManifest();
-  const stats: SyncStats = { added: [], removed: [], errors: [] };
+  const stats: SyncStats = { added: [], moved: [], removed: [], errors: [] };
 
   await processNewFiles(files, manifest, "drive", stats);
 
