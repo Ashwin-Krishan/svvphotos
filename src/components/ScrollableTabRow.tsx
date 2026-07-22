@@ -41,6 +41,23 @@ export default function ScrollableTabRow({
     };
   }, [updateArrows, children]);
 
+  // Deep links (e.g. /photos/festival-2026/day-8-am) land with the right
+  // day already selected, but if that tab is far down the row it'd be
+  // scrolled out of view with no clue it's even there. Jump the row to
+  // center whichever tab is marked active on first render — once only,
+  // so it never fights a user's own scrolling or tab clicks afterward.
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const active = el.querySelector<HTMLElement>("[aria-current]");
+    if (!active) return;
+    const target =
+      active.offsetLeft - el.clientWidth / 2 + active.clientWidth / 2;
+    el.scrollLeft = Math.max(0, target);
+    updateArrows();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const scrollBy = (direction: 1 | -1) => {
     scrollerRef.current?.scrollBy({ left: direction * 260, behavior: "smooth" });
   };

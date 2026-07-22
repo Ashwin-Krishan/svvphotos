@@ -5,11 +5,12 @@ import { motion, useMotionValue, useSpring } from "framer-motion";
 import { useFinePointer } from "@/lib/useFinePointer";
 
 /**
- * A soft, warm gold spotlight that trails the cursor across the dark
- * canvas — like ambient diya light following you. Spring-smoothed so it
- * lags a touch behind the pointer (that lag is what reads as "premium"
- * rather than a hard attached dot). Uses plus-lighter blending so it
- * only ever brightens what's beneath it, never darkens. Desktop +
+ * A very faint, warm gold spotlight that trails the cursor across the
+ * dark canvas — like ambient diya light following you. Spring-smoothed
+ * so it lags a touch behind the pointer. Uses plus-lighter blending so
+ * it only ever brightens what's beneath it, never darkens. Kept
+ * deliberately subtle (small radius, low opacity) — this should read as
+ * barely-there ambience, not a visible spotlight. Desktop +
  * motion-allowed only, and never intercepts pointer events.
  */
 export default function CursorGlow() {
@@ -48,12 +49,12 @@ export default function CursorGlow() {
       transition={{ duration: 0.4 }}
     >
       <motion.div
-        className="absolute h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+        className="absolute h-[220px] w-[220px] -translate-x-1/2 -translate-y-1/2 rounded-full"
         style={{
           left: springX,
           top: springY,
           background:
-            "radial-gradient(circle, rgba(255,222,95,0.10) 0%, rgba(231,37,87,0.05) 35%, transparent 70%)",
+            "radial-gradient(circle, rgba(255,222,95,0.035) 0%, rgba(231,37,87,0.015) 40%, transparent 70%)",
         }}
       />
     </motion.div>
