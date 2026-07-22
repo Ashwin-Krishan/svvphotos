@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { HERO_VIDEO_URL } from "@/lib/siteAssets";
 import VideoBackdrop from "@/components/VideoBackdrop";
+import EmberField from "@/components/EmberField";
 import ComingSoonText from "@/components/ComingSoonText";
 
 export const metadata: Metadata = {
@@ -12,6 +13,7 @@ export default function VideosPage() {
   return (
     <div className="relative flex min-h-[calc(100vh-73px)] items-center overflow-hidden px-4 text-center sm:px-6">
       <VideoBackdrop src={HERO_VIDEO_URL} />
+      <EmberField />
       <ComingSoonText />
     </div>
   );

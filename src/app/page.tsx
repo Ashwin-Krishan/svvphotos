@@ -3,10 +3,12 @@ import { albums } from "@/lib/albums";
 import { getAlbumCoverPhoto } from "@/lib/heroPhotos";
 import { HERO_VIDEO_URL } from "@/lib/siteAssets";
 import VideoBackdrop from "@/components/VideoBackdrop";
+import EmberField from "@/components/EmberField";
 import Marquee from "@/components/Marquee";
 import Reveal from "@/components/Reveal";
 import AlbumCard from "@/components/AlbumCard";
 import HeroText from "@/components/HeroText";
+import MagneticButton from "@/components/MagneticButton";
 
 // Without this, the home page's album cover photos would only ever
 // reflect R2's contents as of the last full deploy — the same class of
@@ -21,6 +23,7 @@ export default async function HomePage() {
     <div>
       <section className="relative flex min-h-[85vh] items-center overflow-hidden px-4 text-center sm:px-6">
         <VideoBackdrop src={HERO_VIDEO_URL} />
+        <EmberField />
         <HeroText firstAlbumSlug={albums[0].slug} />
       </section>
 
@@ -51,14 +54,16 @@ export default async function HomePage() {
           <p className="mx-auto max-w-xl font-display text-2xl italic text-foreground/80">
             For services, hours, and donations —
           </p>
-          <Link
-            href="https://www.vinaayagar.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-6 inline-block rounded-full border border-temple-gold/40 px-6 py-3 font-medium text-temple-gold transition-colors hover:bg-temple-gold/10"
-          >
-            Visit the Main Temple Site ↗
-          </Link>
+          <MagneticButton className="mt-6">
+            <Link
+              href="https://www.vinaayagar.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block rounded-full border border-temple-gold/40 px-6 py-3 font-medium text-temple-gold transition-colors hover:bg-temple-gold/10"
+            >
+              Visit the Main Temple Site ↗
+            </Link>
+          </MagneticButton>
         </Reveal>
       </section>
     </div>
