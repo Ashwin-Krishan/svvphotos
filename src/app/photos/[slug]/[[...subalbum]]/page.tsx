@@ -16,20 +16,29 @@ import { getAlbumContents } from "@/lib/subalbums";
 // minutes, so newly-synced photos show up on their own between deploys.
 export const revalidate = 600;
 
+// Only the base album URL (no day segment) is pre-built at deploy time —
+// day-specific URLs (/photos/festival-2026/day-8-am) render on demand
+// instead, since enumerating every day would mean an extra R2 listing
+// call per album during the build.
 export function generateStaticParams() {
   return albums.map((album) => ({ slug: album.slug }));
 }
 
+type Params = { slug: string; subalbum?: string[] };
+
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<Params>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug, subalbum } = await params;
   const album = getAlbum(slug);
   if (!album) return {};
+  const daySlug = subalbum?.[0];
   return {
-    title: `${album.title} | Photo Gallery`,
+    title: daySlug
+      ? `${album.title} — ${daySlug.replace(/-/g, " ")} | Photo Gallery`
+      : `${album.title} | Photo Gallery`,
     description: album.description,
   };
 }
@@ -37,9 +46,9 @@ export async function generateMetadata({
 export default async function AlbumPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<Params>;
 }) {
-  const { slug } = await params;
+  const { slug, subalbum } = await params;
   const album = getAlbum(slug);
   if (!album) notFound();
 
@@ -49,6 +58,7 @@ export default async function AlbumPage({
   ]);
   const cover = photos[0];
   const hasSubalbums = contents.subalbums.length > 0;
+  const initialSubalbumSlug = subalbum?.[0];
 
   return (
     <div>
@@ -86,7 +96,11 @@ export default async function AlbumPage({
 
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         {hasSubalbums ? (
-          <SubalbumBrowser contents={contents} />
+          <SubalbumBrowser
+            albumSlug={slug}
+            contents={contents}
+            initialSlug={initialSubalbumSlug}
+          />
         ) : (
           <PhotoGrid photos={photos} />
         )}
