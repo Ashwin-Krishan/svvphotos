@@ -66,6 +66,12 @@ export default function Header() {
           >
             Photos
           </Link>
+          <Link
+            href="/videos"
+            className={navLinkClass(pathname.startsWith("/videos"))}
+          >
+            Videos
+          </Link>
           <a
             href="https://www.vinaayagar.com"
             target="_blank"

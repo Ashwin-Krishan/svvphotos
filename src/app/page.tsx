@@ -1,15 +1,12 @@
 import Link from "next/link";
 import { albums } from "@/lib/albums";
 import { getAlbumCoverPhoto } from "@/lib/heroPhotos";
+import { HERO_VIDEO_URL } from "@/lib/siteAssets";
 import VideoBackdrop from "@/components/VideoBackdrop";
 import Marquee from "@/components/Marquee";
 import Reveal from "@/components/Reveal";
 import AlbumCard from "@/components/AlbumCard";
 import HeroText from "@/components/HeroText";
-
-// Site asset (not a synced event photo), uploaded once directly to R2 —
-// see the "Hero video" note in README.md for how to replace it.
-const HERO_VIDEO_URL = `${process.env.R2_PUBLIC_BASE_URL}/_site-assets/hero-video.mp4`;
 
 // Without this, the home page's album cover photos would only ever
 // reflect R2's contents as of the last full deploy — the same class of
