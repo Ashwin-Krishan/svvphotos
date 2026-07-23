@@ -22,6 +22,9 @@ export default function Footer() {
             </a>
           </p>
         </div>
+        <p className="mt-6 text-center text-xs text-foreground/40 sm:text-left">
+          Designed by Ashwin Krishan
+        </p>
       </div>
     </footer>
   );
