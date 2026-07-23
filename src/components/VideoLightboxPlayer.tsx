@@ -52,9 +52,12 @@ export default function VideoLightboxPlayer({
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-4xl"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* w-auto + the video's own intrinsic aspect ratio (not a
+                fixed max-w container) is what makes this actually fill
+                the screen — a max-w-4xl wrapper here was hard-capping it
+                at 896px regardless of how large the display was. */}
             <video
               key={video.slug}
               src={video.videoUrl}
@@ -62,7 +65,7 @@ export default function VideoLightboxPlayer({
               controls
               autoPlay
               playsInline
-              className="max-h-[85vh] w-full rounded-md"
+              className="max-h-[92vh] max-w-[95vw] w-auto rounded-md"
             />
           </motion.div>
         </motion.div>
