@@ -8,6 +8,8 @@ export type SourceFile = {
   name: string;
   size?: number;
   modifiedTime?: string;
+  /** Sortable "YYYYMMDDHHMMSS" capture time, see toSortableTimestamp() in slug.ts. */
+  capturedAt?: string;
   /** Lazily reads the full file content. */
   read: () => Promise<Buffer>;
 };

@@ -1,5 +1,6 @@
 import { google, drive_v3 } from "googleapis";
 import type { SourceFile, WalkResult } from "../types";
+import { toSortableTimestamp } from "../slug";
 
 const FOLDER_MIME = "application/vnd.google-apps.folder";
 
@@ -31,7 +32,8 @@ async function listChildren(
   do {
     const res = await drive.files.list({
       q: `'${folderId}' in parents and trashed = false`,
-      fields: "nextPageToken, files(id, name, mimeType, size, modifiedTime)",
+      fields:
+        "nextPageToken, files(id, name, mimeType, size, modifiedTime, imageMediaMetadata(time))",
       pageSize: 1000,
       pageToken,
     });
@@ -71,6 +73,10 @@ export async function walkDriveFolder(rootFolderId: string): Promise<WalkResult>
         name: child.name,
         size: child.size ? Number(child.size) : undefined,
         modifiedTime: child.modifiedTime ?? undefined,
+        capturedAt: toSortableTimestamp(
+          child.imageMediaMetadata?.time ?? undefined,
+          child.modifiedTime ?? undefined
+        ),
         read: async () => {
           const res = await drive.files.get(
             { fileId, alt: "media" },

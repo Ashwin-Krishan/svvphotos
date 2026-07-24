@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import type { SourceFile, WalkResult } from "../types";
+import { toSortableTimestamp } from "../slug";
 
 const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".heic", ".heif", ".webp"]);
 
@@ -45,6 +46,7 @@ export async function walkLocalFolder(
         name: entry.name,
         size: info.size,
         modifiedTime: info.mtime.toISOString(),
+        capturedAt: toSortableTimestamp(undefined, info.mtime.toISOString()),
         read: () => readFile(fullPath),
       });
     }

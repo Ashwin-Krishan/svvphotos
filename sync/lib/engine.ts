@@ -45,7 +45,7 @@ export async function processNewFiles(
       continue;
     }
 
-    const newR2Key = buildR2Key(file.pathSegments, file.name);
+    const newR2Key = buildR2Key(file.pathSegments, file.name, file.capturedAt);
     const existing = manifest.entries[file.sourceId];
 
     // Only trust the existing record if it was already synced to the
