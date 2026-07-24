@@ -18,6 +18,12 @@ export type Video = {
 
 export const videos: Video[] = [
   {
+    slug: "manjam-2026",
+    title: "Manjam 2026",
+    videoUrl: `${R2_BASE}/_site-assets/videos/manjam-2026.mp4`,
+    posterUrl: `${R2_BASE}/_site-assets/videos/manjam-2026-poster.jpg`,
+  },
+  {
     slug: "kappal-boat-festival-2026",
     title: "Boat Festival 2026",
     videoUrl: `${R2_BASE}/_site-assets/videos/kappal-boat-festival-2026.mp4`,
