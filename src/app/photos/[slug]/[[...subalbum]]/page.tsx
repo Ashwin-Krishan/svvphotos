@@ -7,6 +7,7 @@ import SubalbumBrowser from "@/components/SubalbumBrowser";
 import Reveal from "@/components/Reveal";
 import { albums, getAlbum } from "@/lib/albums";
 import { getAlbumImages } from "@/lib/images";
+import { getAlbumCoverPhoto } from "@/lib/heroPhotos";
 import { getAlbumContents } from "@/lib/subalbums";
 
 // Without this, the page would only ever reflect R2's contents as of the
@@ -52,11 +53,11 @@ export default async function AlbumPage({
   const album = getAlbum(slug);
   if (!album) notFound();
 
-  const [photos, contents] = await Promise.all([
+  const [photos, contents, cover] = await Promise.all([
     getAlbumImages(slug),
     getAlbumContents(slug),
+    getAlbumCoverPhoto(slug),
   ]);
-  const cover = photos[0];
   const hasSubalbums = contents.subalbums.length > 0;
   const initialSubalbumSlug = subalbum?.[0];
 
