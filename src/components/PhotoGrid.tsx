@@ -40,21 +40,28 @@ export default function PhotoGrid({ photos }: { photos: GalleryImage[] }) {
 
   return (
     <>
-      <div className="columns-2 gap-3 sm:columns-3 lg:columns-4 [&>*]:mb-3">
+      {/* A CSS multi-column (masonry) layout fills top-to-bottom within
+          each column before moving to the next one, which reads as
+          "column 1 top-to-bottom, then column 2 top-to-bottom" instead of
+          left-to-right/top-to-bottom — wrong for a chronologically-sorted
+          album, where reading order should track capture order. A plain
+          grid with fixed-aspect (cropped) tiles keeps row-major order and
+          still lines up cleanly since every row's cells are the same
+          height. */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {photos.map((photo, index) => (
           <button
             key={photo.id}
             type="button"
             onClick={() => setOpenIndex(index)}
-            className="group block w-full overflow-hidden rounded-lg bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-temple-gold"
+            className="group relative block aspect-square w-full overflow-hidden rounded-lg bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-temple-gold"
           >
             <Image
               src={photo.src}
               alt={photo.alt}
-              width={photo.width}
-              height={photo.height}
+              fill
               sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
-              className="h-auto w-full transition-transform duration-300 group-hover:scale-[1.03]"
+              className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
               unoptimized
             />
           </button>
