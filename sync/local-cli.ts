@@ -17,6 +17,7 @@ import { reconcileAlbums } from "./lib/albumsRegistry";
 import { processNewFiles, summarize, type SyncStats } from "./lib/engine";
 import { notifySite } from "./lib/revalidate";
 import { slugifySegment } from "./lib/slug";
+import { assignKeyDisambiguators } from "./lib/dedupe";
 
 async function main() {
   const [folderArg, albumNameArg] = process.argv.slice(2);
@@ -31,6 +32,8 @@ async function main() {
   console.log(`Walking ${folderPath} as album "${rootLabel}"...`);
   const { files, topLevelFolderNames } = await walkLocalFolder(folderPath, rootLabel);
   console.log(`Found ${files.length} photo(s).`);
+
+  assignKeyDisambiguators(files);
 
   const manifest = await loadManifest();
   const stats: SyncStats = { added: [], moved: [], removed: [], errors: [] };

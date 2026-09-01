@@ -9,6 +9,7 @@ import { reconcileAlbums } from "./lib/albumsRegistry";
 import { processNewFiles, processRemovals, summarize, type SyncStats } from "./lib/engine";
 import { notifySite } from "./lib/revalidate";
 import { slugifySegment } from "./lib/slug";
+import { assignKeyDisambiguators } from "./lib/dedupe";
 
 async function main() {
   const rootFolderId = process.env.GOOGLE_DRIVE_ROOT_FOLDER_ID;
@@ -39,6 +40,8 @@ async function main() {
     console.log("Done: nothing to sync.");
     return;
   }
+
+  assignKeyDisambiguators(files);
 
   const manifest = await loadManifest();
   const stats: SyncStats = { added: [], moved: [], removed: [], errors: [] };

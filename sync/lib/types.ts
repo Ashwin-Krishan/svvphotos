@@ -10,6 +10,15 @@ export type SourceFile = {
   modifiedTime?: string;
   /** Sortable "YYYYMMDDHHMMSS" capture time, see toSortableTimestamp() in slug.ts. */
   capturedAt?: string;
+  /**
+   * Set by assignKeyDisambiguators() (dedupe.ts) only for files whose
+   * computed key would otherwise collide with another file's — e.g. two
+   * cameras both naming a shot "80K1.JPG" within the same capture second.
+   * Appended onto the R2 key so the two don't silently overwrite each
+   * other; left unset for the (overwhelming majority of) files with no
+   * collision, so it never touches their key.
+   */
+  keyDisambiguator?: string;
   /** Lazily reads the full file content. */
   read: () => Promise<Buffer>;
 };

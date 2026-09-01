@@ -44,12 +44,18 @@ export function toSortableTimestamp(exifTime?: string, isoTime?: string): string
  * by original camera filename (which interleaves badly once more than
  * one camera/phone contributes to the same folder).
  */
-export function buildR2Key(pathSegments: string[], fileName: string, capturedAt?: string): string {
+export function buildR2Key(
+  pathSegments: string[],
+  fileName: string,
+  capturedAt?: string,
+  disambiguator?: string
+): string {
   const slugSegments = pathSegments.map(slugifySegment).filter(Boolean);
   const dot = fileName.lastIndexOf(".");
   const base = slugifySegment(dot > 0 ? fileName.slice(0, dot) : fileName);
   const prefix = capturedAt ? `${capturedAt}-` : "";
-  return [...slugSegments, `${prefix}${base}.jpg`].join("/");
+  const suffix = disambiguator ? `-${disambiguator}` : "";
+  return [...slugSegments, `${prefix}${base}${suffix}.jpg`].join("/");
 }
 
 /**
