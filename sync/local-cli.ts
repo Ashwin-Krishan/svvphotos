@@ -18,6 +18,8 @@ import { processNewFiles, summarize, type SyncStats } from "./lib/engine";
 import { notifySite } from "./lib/revalidate";
 import { slugifySegment } from "./lib/slug";
 import { assignKeyDisambiguators } from "./lib/dedupe";
+import { standardizeWalk } from "./lib/albumNames";
+import { closeRawDecoder } from "./lib/compress";
 
 async function main() {
   const [folderArg, albumNameArg] = process.argv.slice(2);
@@ -30,7 +32,7 @@ async function main() {
   const rootLabel = albumNameArg ?? path.basename(folderPath);
 
   console.log(`Walking ${folderPath} as album "${rootLabel}"...`);
-  const { files, topLevelFolderNames } = await walkLocalFolder(folderPath, rootLabel);
+  const { files, topLevelFolderNames } = standardizeWalk(await walkLocalFolder(folderPath, rootLabel));
   console.log(`Found ${files.length} photo(s).`);
 
   assignKeyDisambiguators(files);
@@ -56,7 +58,9 @@ async function main() {
   }
 }
 
-main().catch((err) => {
-  console.error("Local sync failed:", err);
-  process.exit(1);
-});
+main()
+  .catch((err) => {
+    console.error("Local sync failed:", err);
+    process.exitCode = 1;
+  })
+  .finally(() => closeRawDecoder());

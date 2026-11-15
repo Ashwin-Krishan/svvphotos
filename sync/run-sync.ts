@@ -11,6 +11,7 @@ import { notifySite } from "./lib/revalidate";
 import { slugifySegment } from "./lib/slug";
 import { assignKeyDisambiguators, dropExactDuplicates } from "./lib/dedupe";
 import { closeRawDecoder } from "./lib/compress";
+import { standardizeWalk } from "./lib/albumNames";
 
 async function main() {
   const rootFolderId = process.env.GOOGLE_DRIVE_ROOT_FOLDER_ID;
@@ -19,7 +20,9 @@ async function main() {
   }
 
   console.log("Walking Drive inbox folder tree...");
-  const walked = await walkDriveFolder(rootFolderId);
+  // Tidy folder names (spacing, capitals, known festival spellings) before
+  // anything uses them for album titles, URLs or R2 keys.
+  const walked = standardizeWalk(await walkDriveFolder(rootFolderId));
   const { topLevelFolderNames } = walked;
   const { kept: files, dropped } = dropExactDuplicates(walked.files);
   console.log(

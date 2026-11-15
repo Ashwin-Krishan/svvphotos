@@ -116,6 +116,19 @@ Full design notes live in
   [src/components/SubalbumBrowser.tsx](src/components/SubalbumBrowser.tsx))
   groups them into clickable day tabs automatically — folder = album,
   subfolder = sub-album, natural-sorted (Day 2 before Day 10).
+- **Folder names are standardised** ([sync/lib/albumNames.ts](sync/lib/albumNames.ts))
+  so the temple can name folders however they like: spacing, capitals,
+  junk like "copy"/"(1)"/"photos" are cleaned up, a year anywhere moves to
+  the end, and known festivals snap to one spelling (`varalakshmi vratham
+  2026` → "Varaluxumi Viratham 2026", `DAY 8PM` → "Day 8 PM"). Drive
+  itself is never renamed. To add a festival or a new spelling, edit
+  `CANONICAL_EVENTS` in that file.
+- **Camera RAW** (.CR2, .ARW, .NEF, …) is supported: the full-size JPEG
+  the camera embeds in every RAW file is used. Byte-identical duplicate
+  uploads in the same folder are skipped.
+- **Keep-alive**: GitHub switches off scheduled workflows after 60 days
+  without a commit; the workflow's `keepalive` job resets that timer on
+  every run.
 - **State**: the manifest (which Drive/local files have already been
   synced, and where) lives as a single JSON object at `_sync/manifest.json`
   in the R2 bucket itself — not a git-tracked file. It used to live on a
