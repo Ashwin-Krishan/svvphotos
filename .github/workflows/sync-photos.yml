@@ -10,7 +10,6 @@ on:
 
 permissions:
   contents: write
-  actions: write # keep-alive step below re-enables this workflow
 
 concurrency:
   group: sync-photos
@@ -47,11 +46,26 @@ jobs:
           fi
           npm run sync:drive
 
-      # GitHub switches off scheduled workflows after 60 days without a
-      # commit (it did on 2026-10-31). Re-enabling the workflow through the
-      # API resets that timer, so the sync keeps running between uploads.
+  # GitHub switches off scheduled workflows after 60 days without a commit
+  # (it did on 2026-10-31). Re-enabling the workflow through the API resets
+  # that timer. Kept in its own job so only this tiny step gets actions:
+  # write, and it never re-enables a workflow someone turned off by hand.
+  keepalive:
+    needs: sync
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
       - name: Keep the schedule alive
-        if: always()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/sync-photos.yml/enable"
+          WORKFLOW: repos/${{ github.repository }}/actions/workflows/sync-photos.yml
+        run: |
+          state=$(gh api "$WORKFLOW" --jq .state)
+          if [ "$state" != "active" ]; then
+            echo "Workflow is $state; leaving it alone."
+            exit 0
+          fi
+          gh api -X PUT "$WORKFLOW/enable"
+          echo "Inactivity timer reset."
