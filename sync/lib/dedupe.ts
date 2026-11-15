@@ -35,3 +35,26 @@ export function assignKeyDisambiguators(files: SourceFile[]): void {
     }
   }
 }
+
+/**
+ * Drops byte-identical copies of the same photo in the same folder — the
+ * temple sometimes uploads a batch to Drive twice. Each copy gets its own
+ * Drive file ID, so without this both would land in the gallery (and,
+ * sharing a name and capture second, collide on the same R2 key). Keeps
+ * the copy with the lowest sourceId so the choice is stable across runs.
+ * The same photo in two *different* folders is left alone; that's an
+ * intentional cross-album placement.
+ */
+export function dropExactDuplicates(files: SourceFile[]): { kept: SourceFile[]; dropped: SourceFile[] } {
+  const byKey = new Map<string, SourceFile>();
+  const dropped: SourceFile[] = [];
+  const sorted = [...files].sort((a, b) => a.sourceId.localeCompare(b.sourceId));
+  for (const file of sorted) {
+    if (!file.contentHash) continue;
+    const key = `${file.pathSegments.join("/")}\u0000${file.contentHash}`;
+    if (byKey.has(key)) dropped.push(file);
+    else byKey.set(key, file);
+  }
+  const droppedIds = new Set(dropped.map((f) => f.sourceId));
+  return { kept: files.filter((f) => !droppedIds.has(f.sourceId)), dropped };
+}

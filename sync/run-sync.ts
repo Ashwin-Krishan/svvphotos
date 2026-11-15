@@ -9,7 +9,8 @@ import { reconcileAlbums } from "./lib/albumsRegistry";
 import { processNewFiles, processRemovals, summarize, type SyncStats } from "./lib/engine";
 import { notifySite } from "./lib/revalidate";
 import { slugifySegment } from "./lib/slug";
-import { assignKeyDisambiguators } from "./lib/dedupe";
+import { assignKeyDisambiguators, dropExactDuplicates } from "./lib/dedupe";
+import { closeRawDecoder } from "./lib/compress";
 
 async function main() {
   const rootFolderId = process.env.GOOGLE_DRIVE_ROOT_FOLDER_ID;
@@ -18,7 +19,9 @@ async function main() {
   }
 
   console.log("Walking Drive inbox folder tree...");
-  const { files, topLevelFolderNames } = await walkDriveFolder(rootFolderId);
+  const walked = await walkDriveFolder(rootFolderId);
+  const { topLevelFolderNames } = walked;
+  const { kept: files, dropped } = dropExactDuplicates(walked.files);
   console.log(
     `Found ${files.length} photo(s) across ${topLevelFolderNames.length} top-level folder(s): ${topLevelFolderNames.join(", ")}`
   );
@@ -39,6 +42,10 @@ async function main() {
     );
     console.log("Done: nothing to sync.");
     return;
+  }
+
+  if (dropped.length) {
+    console.log(`Skipping ${dropped.length} exact duplicate upload(s) (same folder, identical file).`);
   }
 
   assignKeyDisambiguators(files);
@@ -76,7 +83,9 @@ async function main() {
   }
 }
 
-main().catch((err) => {
-  console.error("Sync run failed:", err);
-  process.exit(1);
-});
+main()
+  .catch((err) => {
+    console.error("Sync run failed:", err);
+    process.exitCode = 1;
+  })
+  .finally(() => closeRawDecoder());

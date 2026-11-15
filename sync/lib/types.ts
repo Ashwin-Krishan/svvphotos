@@ -7,6 +7,8 @@ export type SourceFile = {
   /** Original filename, e.g. "IMG_0042.JPG". */
   name: string;
   size?: number;
+  /** Content hash when the source provides one (Drive's md5Checksum); used to skip byte-identical re-uploads. */
+  contentHash?: string;
   modifiedTime?: string;
   /** Sortable "YYYYMMDDHHMMSS" capture time, see toSortableTimestamp() in slug.ts. */
   capturedAt?: string;

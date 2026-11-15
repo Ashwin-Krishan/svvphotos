@@ -33,7 +33,7 @@ async function listChildren(
     const res = await drive.files.list({
       q: `'${folderId}' in parents and trashed = false`,
       fields:
-        "nextPageToken, files(id, name, mimeType, size, modifiedTime, imageMediaMetadata(time))",
+        "nextPageToken, files(id, name, mimeType, size, md5Checksum, modifiedTime, imageMediaMetadata(time))",
       pageSize: 1000,
       pageToken,
     });
@@ -72,6 +72,7 @@ export async function walkDriveFolder(rootFolderId: string): Promise<WalkResult>
         pathSegments,
         name: child.name,
         size: child.size ? Number(child.size) : undefined,
+        contentHash: child.md5Checksum ?? undefined,
         modifiedTime: child.modifiedTime ?? undefined,
         capturedAt: toSortableTimestamp(
           child.imageMediaMetadata?.time ?? undefined,
